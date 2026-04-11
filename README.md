@@ -1,4 +1,4 @@
-# ProjectMemoryFramework
+﻿# ProjectMemoryFramework
 
 `ProjectMemoryFramework` is a lightweight, repo-local business memory framework for agent-assisted development.
 
@@ -90,11 +90,36 @@ Every completed task ends with a memory evaluation:
 - did the feature history or architecture record change?
 - do `catalog.yaml` and `index.md` need syncing?
 
-## Installation
+## Quick Start
 
-See [INSTALL.md](./INSTALL.md).
+If you want the fastest path from download to actual usage, follow these steps.
 
-Minimal install target inside your project:
+### Step 1. Download the package
+
+On GitHub:
+
+1. Open the repository page
+2. Click `Code`
+3. Click `Download ZIP`
+4. Extract the ZIP locally
+
+After extraction, you should have:
+
+```text
+ProjectMemoryFramework/
+├── AGENTS.md
+├── INSTALL.md
+└── .agents/
+```
+
+### Step 2. Copy the framework into your target project
+
+Copy these two items into the root of your target project:
+
+- `AGENTS.md`
+- `.agents/`
+
+Minimal install target:
 
 ```text
 YourProject/
@@ -102,12 +127,61 @@ YourProject/
 └── .agents/
 ```
 
-After copying, you must complete:
+If your project already has an `AGENTS.md`, merge the framework section instead of blindly overwriting it.  
+See [INSTALL.md](./INSTALL.md) for the exact merge procedure.
 
-- `.agents/setup/checklist.md` Part 1
-- the Initialization Gate check
+### Step 3. Tell your agent to initialize the framework
 
-Until that gate passes, the framework is not considered active.
+After copying, the framework is still only a template. You must ask your agent to complete initialization before normal work starts.
+
+Recommended prompt:
+
+```text
+Please initialize ProjectMemoryFramework for this repository.
+Follow `.agents/setup/checklist.md` Part 1 exactly.
+Fill all required setup files, replace placeholder values, and run the Initialization Gate check.
+Do not start normal development work until all gate conditions pass.
+```
+
+Stricter prompt:
+
+```text
+Please set up the project memory framework in this repository.
+Read `AGENTS.md`, then complete `.agents/setup/checklist.md` Part 1.
+You must:
+- create or fill `project_profile.md`
+- create or fill `search_scope.md`
+- create or fill `scripting_patterns.md` or mark it N/A
+- replace placeholder subsystem headings in `index.md`
+- initialize `catalog.yaml` with a real date and non-empty areas
+- confirm the Initialization Gate passes before doing any other task
+```
+
+### Step 4. Review the initialization result
+
+Before letting the agent use the framework for real work, verify that these files now exist in the target project:
+
+- `.agents/setup/project_profile.md`
+- `.agents/setup/search_scope.md`
+- `.agents/setup/scripting_patterns.md` or an explicit `N/A` file
+- `.agents/index.md` with real subsystem names
+- `.agents/catalog.yaml` with a real `updated_at` value and non-empty `areas`
+
+If these are not complete, the framework is not active yet.
+
+### Step 5. Start normal usage
+
+Once initialization is complete, the agent should:
+
+1. read `AGENTS.md`
+2. read `.agents/index.md`
+3. read relevant `modules/`, `units/`, and `demands/`
+4. do the task
+5. end with a memory update decision
+
+## Installation
+
+See [INSTALL.md](./INSTALL.md) for the full install and merge procedure.
 
 ## Typical Workflow
 
@@ -119,6 +193,20 @@ Until that gate passes, the framework is not considered active.
 4. Fill `setup/scripting_patterns.md` or explicitly mark it `N/A`
 5. Replace placeholder subsystem headings in `index.md`
 6. Set real values in `catalog.yaml`
+
+The setup is not complete until the Initialization Gate passes.
+
+### Initialization Gate
+
+The framework is only active when all of the following are true:
+
+1. `setup/project_profile.md` exists and contains no placeholder values
+2. `setup/search_scope.md` exists and contains no placeholder values
+3. `setup/scripting_patterns.md` exists, or is explicitly marked `N/A`
+4. `.agents/index.md` no longer contains placeholder subsystem headings
+5. `.agents/catalog.yaml` has a real date and a non-empty `areas` list
+
+If any of these fail, stop and finish setup before using the framework.
 
 ### During implementation
 
@@ -183,7 +271,35 @@ This framework works best when teams treat it as:
 - not a dumping ground for every minor observation
 
 Selectivity matters.  
-The goal is not “document everything”, but “preserve what future agents are likely to need”.
+The goal is not "document everything", but "preserve what future agents are likely to need".
+
+## Recommended Prompts
+
+These prompts work well in real projects.
+
+### Initialize the framework
+
+```text
+Please initialize ProjectMemoryFramework for this repository.
+Follow `.agents/setup/checklist.md` Part 1 exactly.
+Do not begin normal project work until the Initialization Gate passes.
+```
+
+### Start a normal development task
+
+```text
+Before working, follow the read order in `AGENTS.md` and `.agents/rules/memory_governance.md`.
+Use the existing memory layer first, then work in code.
+At the end, explicitly tell me whether memory needed an update.
+```
+
+### Ingest a medium or large new requirement
+
+```text
+Treat this as a new requirement intake.
+Use `.agents/setup/checklist.md` Part 2.
+If the task is medium or large, create a demand document first, then continue.
+```
 
 ## Notes
 
