@@ -1,0 +1,159 @@
+# ProjectMemoryFramework Installation Guide
+
+A plugin-style business memory framework for agent-assisted Unreal Engine development.
+Installs into any UE project without modifying or replacing existing files.
+
+---
+
+## What Gets Installed
+
+Two items are added to your project root:
+
+```
+YourProject/
+├── AGENTS.md          ← Framework hook (merged into or replacing your existing AGENTS.md)
+└── .agents/           ← The entire framework lives here
+```
+
+---
+
+## Installation
+
+### Step 1 — Copy the Framework Directory
+
+Copy the `.agents/` directory from this package into your project root:
+
+```
+cp -r ProjectMemoryFramework/.agents/ YourProject/.agents/
+```
+
+### Step 2 — Merge AGENTS.md
+
+**If your project does NOT have an `AGENTS.md`:**
+
+Copy `AGENTS.md` from this package to your project root:
+
+```
+cp ProjectMemoryFramework/AGENTS.md YourProject/AGENTS.md
+```
+
+Add any project-specific rules in the marked area at the top of the file, above the `---` separator.
+
+**If your project already has an `AGENTS.md`:**
+
+Append the framework section to your existing file. The framework section starts at the
+`# Agent Business Memory Layer` heading (below the first `---` separator in `AGENTS.md`).
+
+```
+# Preview what will be appended:
+grep -n "Agent Business Memory Layer" ProjectMemoryFramework/AGENTS.md
+
+# Append to your existing AGENTS.md:
+echo "" >> YourProject/AGENTS.md
+sed -n '/^---$/,$ p' ProjectMemoryFramework/AGENTS.md | tail -n +2 >> YourProject/AGENTS.md
+```
+
+Your original content is completely preserved — the framework section is purely additive.
+
+These commands are POSIX-style examples. On Windows, use equivalent PowerShell commands
+or copy the section manually.
+
+### Step 3 — Smart Setup (MANDATORY — run with your agent)
+
+After copying, the setup templates still contain `{PLACEHOLDER}` values.
+**The framework is not active until Smart Setup is complete.**
+
+Tell your agent:
+
+> "Please complete the framework initialization per `.agents/setup/checklist.md` Part 1.
+> Run the Initialization Gate check at the end and confirm all five conditions pass."
+
+The agent will:
+
+1. **[Auto]** Read `.uproject` / `CMakeLists.txt` / existing `AGENTS.md` to infer project
+   name, UE version, and VCS → write `setup/project_profile.md`
+
+2. **[Auto]** Scan `Source/` and `Content/` to identify subsystem directories → write
+   `setup/search_scope.md` with Tier 1/2 directory tables
+
+3. **[Auto → Human Review Required]** Detect scripting files (`.lua` / `.py` / `.js`) and
+   infer base class patterns, entry points, and data access patterns → write
+   `setup/scripting_patterns.md`. Sections that need human review are marked `<!-- TODO: verify -->`.
+   **Review and correct these sections before starting development work.**
+
+4. **[Auto]** Replace placeholder subsystem headings in `index.md` with actual subsystem names
+   inferred from the project structure
+
+5. **[Auto]** Set real `updated_at` date and `areas` list in `catalog.yaml`
+
+After Smart Setup, run the **Initialization Gate** check (see `setup/checklist.md`).
+The framework is not active until all five gate conditions pass.
+
+### Step 4 — Generate Claude Bridge (Optional)
+
+If you are using Claude Code, generate `CLAUDE.md` at the project root:
+
+```
+cp ProjectMemoryFramework/.agents/setup/CLAUDE.template.md YourProject/CLAUDE.md
+```
+
+Fill in the IntelliSense root path and Claude Private Memory path.
+
+### Step 5 — Clean Up
+
+Delete the `ProjectMemoryFramework/` installation package from your project root.
+It is a temporary installer, not part of the project.
+
+```
+rm -rf ProjectMemoryFramework/
+```
+
+---
+
+## After Installation
+
+```
+YourProject/
+├── AGENTS.md             Project rules + appended framework hook
+├── .agents/              Framework — all business memory lives here
+│   ├── rules/            Ready-to-use UE conventions and governance rules
+│   ├── setup/            Project-specific configuration (auto-filled by Smart Setup)
+│   ├── templates/        Document templates for module/unit/demand creation
+│   ├── modules/          Empty — accumulates as work progresses
+│   ├── units/            Empty — accumulates as work progresses
+│   └── demands/          Empty — accumulates as work progresses
+├── Source/               Your existing code
+└── Content/              Your existing content
+```
+
+---
+
+## Updating the Framework
+
+To update to a newer version:
+
+1. Download the new package.
+2. Compare `rules/` files — merge any new rules into your existing `rules/` files.
+3. Check `templates/` for updated templates — optionally update your copies.
+4. Do **not** overwrite `setup/`, `modules/`, `units/`, or `demands/` — these contain
+   your project's accumulated knowledge.
+
+---
+
+## Removing the Framework
+
+1. Delete `.agents/` from your project root.
+2. Remove the appended framework section from `AGENTS.md` (from `# Agent Business Memory Layer`
+   to end of file, or from the `---` separator that precedes it).
+3. Remove `CLAUDE.md` if it was generated by the framework.
+
+---
+
+## Optional Enhancements
+
+**log.md** — Append-only activity log for time-ordered traceability.
+Format: `## [YYYY-MM-DD] type | title`
+Create `.agents/log.md` and note it in `rules/memory_governance.md`.
+
+**Lint health check** — Periodic check for stale paths, orphan documents, and missing
+cross-references. Ask your agent to perform a health check pass on `.agents/` when needed.

@@ -1,0 +1,146 @@
+# .agents/catalog.yaml
+#
+# Agent-readable lightweight document index.
+# Do NOT duplicate prose content here. This file tracks IDs, paths, types, statuses,
+# and cross-references only.
+#
+# =============================================================================
+# SCHEMA REFERENCE
+# =============================================================================
+#
+# version: (integer) catalog schema version. Always 1 for this framework version.
+# updated_at: (date YYYY-MM-DD) last time any entry was added, changed, or removed.
+#
+# areas: (list of strings)
+#   Short uppercase area codes used in document IDs.
+#   Define all area codes here. All document IDs must use one of these codes.
+#   Recommended: 2-5 letter codes matching your subsystem names.
+#   Examples: CBT (combat), UI, CHR (character), GAME, NET, COMMON, SYS
+#
+# documents: (list of entries)
+#   Each entry represents one formal document (demand, module, or unit).
+#
+# -----------------------------------------------------------------------------
+# REQUIRED FIELDS for all document types:
+#
+#   id:      Unique identifier. Naming rules by type:
+#              module:  MOD-{AREA}-{PascalCaseName}
+#              unit:    UNIT-{AREA}-{PascalCaseName}
+#              demand:  DEM-{AREA}-{PascalCaseFeature}-{NNN}  (NNN = 001, 002, ...)
+#
+#   title:   Human-readable display name.
+#
+#   type:    One of:
+#              demand   — feature flow record (demands/ directory)
+#              module   — system behavior document (modules/ directory)
+#              unit     — implementation unit document (units/ directory)
+#
+#   area:    Must match one of the codes listed under `areas`.
+#
+#   status:  One of:
+#              planned      — demand created, work not started
+#              in_progress  — actively being implemented
+#              active       — implemented and in use
+#              archived     — no longer active, kept for history
+#
+#   path:    Relative path from repository root to the document file.
+#
+# -----------------------------------------------------------------------------
+# OPTIONAL / TYPE-SPECIFIC RELATIONSHIP FIELDS:
+#
+#   For modules:
+#     related_units:    (list of UNIT-... ids) units that belong to this module
+#     related_demands:  (list of DEM-... ids) demands this module implements or relates to
+#     entrypoints:      (list of strings) key function anchors, format "File:FunctionName"
+#
+#   For units:
+#     owner_module:     (single MOD-... id) the module this unit belongs to
+#     source_paths:     (list of strings) actual source file paths this unit documents
+#     related_demands:  (list of DEM-... ids) demands this unit relates to
+#
+#   For demands:
+#     related_modules:  (list of MOD-... ids) modules involved in this demand
+#
+# -----------------------------------------------------------------------------
+# OPTIONAL METADATA FIELDS (any document type):
+#
+#   owners:  (list of strings) developer names or aliases responsible for this doc
+#   tags:    (list of strings) free-form labels for filtering
+#
+# =============================================================================
+# RELATIONSHIP OVERVIEW
+#
+#   demand  <->  module   via  related_modules (demand) / related_demands (module)
+#   module  <->  unit     via  related_units (module) / owner_module (unit)
+#   demand  <->  unit     via  related_demands (unit, optional)
+#
+# =============================================================================
+# SYNC RULES
+#
+#   - When a formal doc is created, deleted, renamed, or archived:
+#     sync-check this file.
+#   - When a module's related_units or related_demands change:
+#     sync-check this file.
+#   - When a unit changes owner_module:
+#     sync-check this file.
+#   - Do not add entries here for files in drafts/ or legacy/.
+#
+# =============================================================================
+# INITIALIZATION REQUIREMENT
+#
+#   If updated_at still reads "YYYY-MM-DD" or the areas list is still commented
+#   out / empty, this catalog is UNINITIALIZED.
+#
+#   Do NOT add document entries to an uninitialized catalog.
+#   Complete setup/checklist.md Part 1 (Step 5) first, then:
+#     - Set updated_at to today's date
+#     - Uncomment and fill in the areas list with this project's actual area codes
+#
+# =============================================================================
+
+version: 1
+updated_at: YYYY-MM-DD
+
+areas:
+  # Replace with your project's actual area codes.
+  # - CBT
+  # - UI
+  # - CHR
+  # - GAME
+  # - COMMON
+
+documents:
+  # Entries are added here as formal module/unit/demand documents are created.
+  #
+  # Example demand entry:
+  # - id: DEM-UI-NewFeature-001
+  #   title: New Feature Demand
+  #   type: demand
+  #   area: UI
+  #   status: in_progress
+  #   path: .agents/demands/UI_NewFeature.md
+  #   related_modules:
+  #     - MOD-UI-NewFeature
+  #
+  # Example module entry:
+  # - id: MOD-UI-NewFeature
+  #   title: New Feature Module
+  #   type: module
+  #   area: UI
+  #   status: active
+  #   path: .agents/modules/MOD-UI-NewFeature.md
+  #   related_units:
+  #     - UNIT-UI-NewFeatureWidget
+  #   related_demands:
+  #     - DEM-UI-NewFeature-001
+  #
+  # Example unit entry:
+  # - id: UNIT-UI-NewFeatureWidget
+  #   title: NewFeatureWidget Unit
+  #   type: unit
+  #   area: UI
+  #   status: active
+  #   path: .agents/units/UNIT-UI-NewFeatureWidget.md
+  #   owner_module: MOD-UI-NewFeature
+  #   source_paths:
+  #     - Content/Script/BluePrints/UI/WBP/NewFeature/WBP_NewFeature_C.lua
