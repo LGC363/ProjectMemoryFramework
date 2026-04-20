@@ -19,7 +19,7 @@ is initialized. All six conditions must be true:
 3. `setup/scripting_patterns.md` exists **or** is explicitly marked `N/A`
 4. `.agents/index.md` subsystem headings have been replaced (no `{Subsystem 1}` etc.)
 5. `.agents/catalog.yaml` has a real `updated_at` date and a non-empty `areas` list
-6. **The guidance layer is installed** — Git pre-commit hook must be in place
+6. **The guidance layer is installed** — `.cursorrules` must be in place
 
 If any condition is unmet: complete `setup/checklist.md` Part 1 first.
 Do not start the actual task until the gate passes.
@@ -54,9 +54,8 @@ require strict discipline:
 - Memory status line — you MUST remember to include the final line
 - Init Gate — you MUST self-check before reading `.agents/`
 
-The Git pre-commit hook (`validate_agents_health.py`) will catch mechanical
-errors (orphan docs, stale paths) at commit time, but cannot check turn-level
-behavior.
+Cursor relies on agent discipline for catalog sync and memory status lines.
+There is no mechanical enforcement — all judgments are made by the Agent.
 
 ## Project-Specific Context
 

@@ -11,7 +11,7 @@
 - **Project name**: {PROJECT_NAME}
 - **UE version**: {e.g. UE 5.3 / custom internal build}
 - **Engine source path**: {e.g. D:\UE5\Engine — or "standard Epic installation"}
-- **Version control**: {SVN | Git | Perforce | other}
+- **Version control**: {SVN | Perforce | other}
 - **Repository root**: {absolute path on this machine}
 
 ---
@@ -45,6 +45,6 @@
 
 ## External Tools and Trackers
 
-- **Ticket system**: {TAPD | Jira | Linear | GitHub Issues | other}
+- **Ticket system**: {TAPD | Jira | Linear | other}
 - **Design doc platform**: {Feishu | Confluence | Notion | Google Docs | other}
 - **CI/CD**: {if relevant}

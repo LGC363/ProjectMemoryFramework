@@ -23,7 +23,7 @@ is initialized. All six conditions must be true:
 3. `setup/scripting_patterns.md` exists or is explicitly marked `N/A`
 4. `index.md` has no `{Subsystem N}` placeholder headings
 5. `catalog.yaml` has a real date and a non-empty `areas` list
-6. **The guidance layer is installed** — Git pre-commit hook must be in place
+6. **The guidance layer is installed** — `.claude/` config must be in place
 
 If any condition is unmet: complete `setup/checklist.md` Part 1 before starting work.
 Do not use `.agents/` memory until the gate passes.
@@ -59,9 +59,8 @@ require strict discipline:
 - Memory status line — you MUST remember to include the final line
 - Init Gate — you MUST self-check before reading `.agents/`
 
-The Git pre-commit hook (`validate_agents_health.py`) will catch mechanical
-errors (orphan docs, stale paths) at commit time, but cannot check turn-level
-behavior.
+Claude Code relies on agent discipline for catalog sync and memory status lines.
+There is no mechanical enforcement — all judgments are made by the Agent.
 
 ## Data Source Policy
 

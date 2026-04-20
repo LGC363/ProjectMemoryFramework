@@ -48,7 +48,7 @@ Include any system history that explains why this approach was chosen over alter
 
 ## 3. 需求来源
 
-- **Ticket**: {TAPD / Jira / Linear / GitHub Issue — ID and link}
+- **Ticket**: {TAPD / Jira / Linear — ID and link}
 - **Design doc**: {Feishu / Confluence / Notion link}
 - **Other references**: {PRD, verbal requirement date, etc.}
 

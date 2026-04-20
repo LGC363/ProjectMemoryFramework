@@ -187,28 +187,10 @@ The framework uses a **tiered guidance strategy** to maximize coverage across pl
 |---|---|---|
 | **Kimi Code CLI** | Native `command` hooks (6 events) | Context injection at session/task/code/turn/compact moments |
 | **Claude Code** | Native `prompt` hooks (6 events) + `CLAUDE.md` | Context injection at same moments + per-session baseline rules |
-| **Cursor** | `.cursorrules` system prompt + Git pre-commit | Static rules per session + commit-time health check |
-| **Git (all platforms)** | Pre-commit hook (`validate_agents_health.py`) | Stale docs, orphan entries, placeholder leak |
+| **Cursor** | `.cursorrules` system prompt | Static rules per session |
 
 > **Philosophy**: All hooks are *context-injection only* — they present facts and rules,
-> but the Agent makes all judgments. There is no mechanical blocking. The only true
-> mechanical enforcement is the Git pre-commit hook.
-
-**Git pre-commit hook (recommended for all teams):**
-
-```bash
-# From your project root
-cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
-
-This is the **only mechanical check** in the framework. It catches issues
-that guidance cannot prevent:
-- `{PLACEHOLDER}` values leaked into committed setup files
-- Orphan documents in `modules/` / `units/` / `demands/` not listed in `catalog.yaml`
-- Broken cross-references and stale paths
-
----
+> but the Agent makes all judgments. There is no mechanical blocking.
 
 ## Updating the Framework
 
@@ -232,7 +214,6 @@ To update to a newer version:
 4. Remove PMF hooks from `~/.kimi/config.toml` (delete the block between
    `# === ProjectMemoryFramework Hooks` and `# === End PMF Hooks`).
 5. Remove `.claude/` from your project root (if using Claude Code).
-6. Remove the Git pre-commit hook if installed.
 
 ---
 

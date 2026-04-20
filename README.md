@@ -100,7 +100,7 @@ If you want the fastest path from download to actual usage, follow these steps.
 
 ### Step 1. Download the package
 
-On GitHub:
+Download the framework package:
 
 1. Open the repository page
 2. Click `Code`
@@ -158,7 +158,7 @@ You must:
 - create or fill `scripting_patterns.md` or mark it N/A
 - replace placeholder subsystem headings in `index.md`
 - initialize `catalog.yaml` with a real date and non-empty areas
-- install the guidance layer (hooks for Kimi CLI, `.claude/` for Claude Code, `.cursorrules` for Cursor, Git pre-commit for all)
+- install the guidance layer (hooks for Kimi CLI, `.claude/` for Claude Code, `.cursorrules` for Cursor)
 - confirm the Initialization Gate passes before doing any other task
 ```
 
@@ -171,7 +171,7 @@ Before letting the agent use the framework for real work, verify that these are 
 - `.agents/setup/scripting_patterns.md` or an explicit `N/A` file
 - `.agents/index.md` with real subsystem names
 - `.agents/catalog.yaml` with a real `updated_at` value and non-empty `areas`
-- **Guidance layer installed** (run install script for Kimi CLI; copy `.claude/` for Claude Code; copy `.cursorrules` for Cursor; install Git pre-commit hook)
+- **Guidance layer installed** (run install script for Kimi CLI; copy `.claude/` for Claude Code; copy `.cursorrules` for Cursor)
 
 If any of these are incomplete, the framework is not active yet.
 
@@ -211,7 +211,7 @@ The framework is only active when all of the following are true:
 3. `setup/scripting_patterns.md` exists, or is explicitly marked `N/A`
 4. `.agents/index.md` no longer contains placeholder subsystem headings
 5. `.agents/catalog.yaml` has a real date and a non-empty `areas` list
-6. **The guidance layer is installed** (Kimi CLI hooks via install script, Claude Code `.claude/` config, or Cursor `.cursorrules` + Git pre-commit)
+6. **The guidance layer is installed** (Kimi CLI hooks via install script, Claude Code `.claude/` config, or Cursor `.cursorrules`)
 
 If any of these fail, stop and finish setup before using the framework.
 
@@ -319,7 +319,7 @@ The framework uses a **tiered strategy** to help agents remember the protocol:
 | **Kimi Code CLI** | Native `command` hooks (6 events) | Injects context at session/task/code/turn/compact moments |
 | **Claude Code** | Native `prompt` hooks (6 events) + `CLAUDE.md` | Injects context at same moments + per-session baseline rules |
 | **Cursor** | `.cursorrules` system prompt | Injects static rules into every session |
-| **Git (all)** | `validate_agents_health.py` pre-commit hook | Rejects commits with stale docs, orphan entries, placeholder leaks |
+
 
 See `.agents/hooks/README.md` for the full guidance architecture.
 

@@ -59,4 +59,4 @@ No memory update needed
 - **Code wins over docs**：代码是真相来源，文档落后于代码时，更新文档
 - **Initialization Gate**：`setup/checklist.md` Part 1 通过后才算框架就绪
 - **Memory Update 是强约定，非机械强制**：由于 LLM 输出不稳定，我们不拦截输出，但你有义务在最终回复中报告 Memory 状态
-- **只有 Git pre-commit hook 是机械强制**：`validate_agents_health.py` 会在提交前检查文档完整性
+- **无机械强制**：所有规则都是强约定，由 Agent 自行判断和遵守

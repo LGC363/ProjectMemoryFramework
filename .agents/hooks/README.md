@@ -78,7 +78,7 @@ the agent will correctly respond to the block. In practice:
 - **No false positives that block work** — worst case, the agent sees irrelevant context and ignores it
 - **No format detection fragility** — we don't parse what the agent said, we just present facts and rules
 - **Respects agent autonomy** — the agent makes the judgment call, but it makes it *informed*
-- **Composable with other mechanisms** — context injection + `sync-catalog.py` tool + Git pre-commit = layered reliability
+- **Composable with other mechanisms** — context injection + `sync-catalog.py` tool = layered reliability
 - **Works across platforms** — Kimi uses `command` scripts, Claude uses `prompt` hooks, same philosophy
 
 ---
@@ -90,7 +90,6 @@ the agent will correctly respond to the block. In practice:
 | **Kimi Code CLI** | `command` | Python scripts output to stdout | ✅ Yes | ❌ No (user-level `~/.kimi/config.toml`) |
 | **Claude Code** | `prompt` | Claude evaluates prompt strings directly | ✅ Yes | ✅ Yes (project-level `.claude/settings.json`) |
 | **Cursor** | N/A | `.cursorrules` static system prompt | ❌ No | ✅ Yes (project-level) |
-| **Git (all)** | N/A | `validate_agents_health.py` pre-commit hook | N/A | ✅ Yes (project-level) |
 
 ### For Non-Hook Platforms (Cursor, etc.)
 
@@ -100,13 +99,6 @@ Use bridge files for static per-session guidance:
 These bridge files inject static guidance text into the system prompt for every
 session. They are less dynamic than hooks (no per-event reminders), but they
 still ensure the agent knows the framework exists and what the rules are.
-
-For all platforms, install the **Git pre-commit hook** as the mechanical bottom line:
-
-```bash
-cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
 
 ---
 

@@ -61,10 +61,9 @@ The framework uses a **layered strategy** to help agents remember the protocol:
 
 2. **Automation Tools** — agents explicitly call these to reduce mechanical burden:
    - `python .agents/tools/sync-catalog.py` — regenerates `catalog.yaml` from all doc frontmatters
-   - `python .agents/hooks/validate_agents_health.py` — checks for stale docs / broken refs
 
-3. **Git Pre-Commit Hook** — the mechanical bottom line for all platforms:
-   - Rejects commits with orphan documents, placeholder leaks, or stale paths
+3. **Agent Self-Determination** — all guidance is context-injection only:
+   - Hooks present facts and rules, but the Agent makes all judgments
 
 These mechanisms **guide** and **assist**; they do not override the agent's judgment.
 The agent still decides what knowledge is worth preserving.

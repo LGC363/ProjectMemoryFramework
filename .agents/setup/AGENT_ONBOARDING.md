@@ -15,7 +15,7 @@ All six must be true:
 3. `setup/scripting_patterns.md` exists or is explicitly marked `N/A`
 4. `index.md` has no `{Subsystem N}` placeholder headings
 5. `catalog.yaml` has a real date and a non-empty `areas` list
-6. **The guidance layer is installed** (hooks for Kimi CLI, or bridge + Git pre-commit for other platforms)
+6. **The guidance layer is installed** (hooks for Kimi CLI, or bridge for other platforms)
 
 **If any condition is unmet:** complete `setup/checklist.md` Part 1 before starting work.
 Do not use `.agents/` memory until the gate passes.

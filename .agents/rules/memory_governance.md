@@ -67,10 +67,8 @@ These platforms do not support lifecycle hooks. Guidance falls back to:
 
 1. **System prompt injection** — via `.cursorrules`, the agent receives the
    full governance rules in every session context.
-2. **Git pre-commit hook** — `validate_agents_health.py` blocks commits that contain
-   stale docs, orphan entries, or placeholder leaks.
 
-On these platforms, compliance relies more heavily on agent discipline. The framework
+On these platforms, compliance relies entirely on agent discipline. The framework
 still works, but the reminders are static (per-session) rather than dynamic (per-event).
 
 ---
@@ -161,13 +159,6 @@ Sync `index.md` when:
 - A module or demand is archived and the link should be removed
 - The recommended reading path for any subsystem changes
 
-**Git pre-commit hook (all platforms)**
-
-The `validate_agents_health.py` pre-commit hook will reject commits that contain:
-- Orphan documents (files in `modules/` / `units/` / `demands/` not listed in `catalog.yaml`)
-- Broken cross-references in `catalog.yaml`
-- Stale `updated_at` values (> 30 days)
-
 ### When NOT to Update
 
 Do not update formal docs for:
@@ -245,9 +236,8 @@ On **Kimi Code CLI**, the `Stop` hook injects a gentle reminder when business co
 was modified during the turn: "Please include a Memory status line in your final
 response." This is a reminder, not a block — the agent can still choose how to respond.
 
-On other platforms, this remains a convention-based rule. The Git pre-commit hook
-will not catch a missing status line (it is a conversation artifact, not a file),
-so agent discipline is the primary safeguard.
+On other platforms, this remains a convention-based rule. Agent discipline is
+the primary safeguard — there is no mechanical enforcement for turn-level behavior.
 
 ---
 

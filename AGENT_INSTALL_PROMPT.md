@@ -14,7 +14,7 @@ Copy and paste the following prompt into any agent (Kimi Code CLI, Claude Code, 
 2. 将 PMF 框架文件复制/合并到当前项目
 3. 完成 Smart Setup（自动推断项目信息 + 填充模板）
 4. 根据你所在的 Agent 平台安装 Guidance Layer
-5. 安装 Git pre-commit hook
+5. 运行 Initialization Gate 验证
 6. 运行 Initialization Gate 验证并逐项确认
 
 在 Gate 完全通过之前，不要开始任何项目业务工作。
@@ -125,23 +125,7 @@ bash .agents/hooks/install-hooks.sh
 
 ---
 
-### Step 3 — 安装 Git pre-commit hook（所有平台）
-
-```bash
-# 从项目根目录执行
-cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
-
-这是唯一的**机械强制**检查，会在每次提交前验证：
-- 无占位符泄漏到 setup 文件中
-- 无 orphan 文档（modules/units/demands 中的文件未列入 catalog.yaml）
-- catalog.yaml 路径有效
-- updated_at 不超过 30 天
-
----
-
-### Step 4 — Initialization Gate 验证
+### Step 3 — Initialization Gate 验证
 
 框架**只有在以下 6 个条件全部满足时才算真正激活**。
 请逐项检查，在最终回复中以表格形式报告结果。
@@ -153,7 +137,7 @@ chmod +x .git/hooks/pre-commit
 | 3 | `.agents/setup/scripting_patterns.md` 存在或明确标记 N/A | 通过 / 未通过 |
 | 4 | `.agents/index.md` 无 `{Subsystem N}` 占位符 | 通过 / 未通过 |
 | 5 | `.agents/catalog.yaml` 有真实 `updated_at` 日期且 `areas` 非空 | 通过 / 未通过 |
-| 6 | Guidance Layer 已安装（Kimi hooks / Claude config / Cursor rules）+ Git pre-commit 已安装 | 通过 / 未通过 |
+| 6 | Guidance Layer 已安装（Kimi hooks / Claude config / Cursor rules）| 通过 / 未通过 |
 
 **如果任何一项未通过，列出具体原因和修复步骤。不要开始项目业务工作。**
 
@@ -180,7 +164,6 @@ chmod +x .git/hooks/pre-commit
 ### 平台配置
 - Agent 平台：Kimi CLI / Claude Code / Cursor / 其他
 - Guidance Layer：已安装 / 未安装
-- Git pre-commit：已安装 / 未安装
 
 ### 说明
 [如果有未通过的项，写在这里；如果全部通过，写 "Gate 已通过，框架已激活，可以开始工作。"]

@@ -99,13 +99,6 @@ bash .agents/hooks/install-hooks.sh
 cp -r .claude YourProject/
 ```
 
-**For all platforms (including Kimi and Claude):**
-```bash
-# Git pre-commit hook — catches stale docs, orphan entries, placeholder leaks
-cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
-
 Verify Kimi hooks with `/hooks` in a Kimi CLI shell.
 Verify Claude hooks by checking that `.claude/settings.json` exists in your project root.
 
@@ -123,7 +116,7 @@ Run this check after completing Part 1. Do not proceed to project work until it 
 | 3 | `setup/scripting_patterns.md` exists **or** is explicitly marked `N/A` | [ ] |
 | 4 | `.agents/index.md` has no `{Subsystem N}` placeholder headings | [ ] |
 | 5 | `.agents/catalog.yaml` has a real date in `updated_at` and non-empty `areas` | [ ] |
-| 6 | **Guidance layer is installed** — Kimi hooks / Claude `.claude/` / Cursor `.cursorrules` + Git pre-commit | [ ] |
+| 6 | **Guidance layer is installed** — Kimi hooks / Claude `.claude/` / Cursor `.cursorrules` | [ ] |
 
 If any condition is unmet, return to the corresponding step above and complete it.
 

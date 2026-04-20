@@ -38,7 +38,7 @@ from scratch each time.
 │   ├── auto_sync_catalog.py      PostToolUse: auto-syncs catalog.yaml
 │   ├── business_code_marker.py   PostToolUse: marks business code changes
 │   ├── turn_end_reminder.py      Stop: reminds about Memory status line
-│   ├── validate_agents_health.py Git pre-commit: repository-wide health check
+│   ├── (no pre-commit)           Framework does not manage version control
 │   ├── install-hooks.ps1         Windows hook installer
 │   ├── install-hooks.sh          macOS/Linux hook installer
 │   └── README.md                 Guidance layer architecture guide
@@ -80,7 +80,6 @@ for the full architecture. Quick summary:
 | `PreToolUse` hook | Kimi CLI | Init Gate must pass before reading `.agents/` |
 | `PostToolUse` hooks | Kimi CLI | `catalog.yaml` auto-sync when docs change |
 | `Stop` hook | Kimi CLI | Memory status line after business code changes |
-| Git pre-commit hook | All | Stale docs, orphan entries, placeholder leaks |
 | System prompt bridge | Claude / Cursor | Rule injection when native hooks unavailable |
 
 ---
