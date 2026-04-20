@@ -114,7 +114,7 @@ This registers 6 **context-injection hooks** in `~/.kimi/config.toml`. These hoo
 never block anything. They inject facts and rules into the agent's context:
 - **Session start** — Project context + read-before-work reminder
 - **User prompt** — Prompt text + "Is this a dev task?" guidance
-- **PreToolUse (ReadFile)** — Warning if reading `.agents/` before initialization
+- **PreToolUse (Read)** — Warning if reading `.agents/` before initialization
 - **PostToolUse (Write/Replace)** — Reminder to evaluate memory impact
 - **Turn end** — Prompt to include Memory status line
 - **Context compacting** — Warning that memory docs may be evicted
@@ -132,7 +132,7 @@ cp -r ProjectMemoryFramework/.claude YourProject/
 This provides:
 - **`.claude/settings.json`** — 6 native `prompt`-type hooks that mirror the Kimi
   hook events. Claude evaluates these prompts directly (no external scripts).
-  Supports template variables: `{{cwd}}`, `{{prompt}}`, `{{tool_input.path}}`, etc.
+  Supports template variables: `{{cwd}}`, `{{prompt}}`, `{{tool_input.file_path}}`, etc.
 - **`.claude/CLAUDE.md`** — Per-session baseline rules. Claude reads this at session
   start and uses it as grounding throughout the conversation.
 

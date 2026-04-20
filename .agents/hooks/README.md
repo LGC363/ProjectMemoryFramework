@@ -25,7 +25,7 @@ without blocking the workflow.
 
 **Claude Code** (`prompt` type hooks, project-level `.claude/settings.json`):
 - Claude evaluates prompt instructions directly — no external scripts needed
-- Supports template variables: `{{cwd}}`, `{{prompt}}`, `{{tool_input.path}}`, etc.
+- Supports template variables: `{{cwd}}`, `{{prompt}}`, `{{tool_input.file_path}}`, etc.
 - Project-level config (`.claude/settings.json`) is commitable and shared across team members
 
 Both platforms follow the same philosophy:
@@ -43,7 +43,7 @@ Both platforms follow the same philosophy:
 |---|---|---|
 | `session_start_context.py` | `SessionStart` | Project context + "Read memory before working" |
 | `prompt_submit_context.py` | `UserPromptSubmit` | "Is this a dev task?" guidance (does NOT echo the prompt) |
-| `pretooluse_context.py` | `PreToolUse` (ReadFile) | Init Gate status + warning if reading `.agents/` too early |
+| `pretooluse_context.py` | `PreToolUse` (Read) | Init Gate status + warning if reading `.agents/` too early |
 | `posttooluse_context.py` | `PostToolUse` (Write/Replace) | File path + "Evaluate memory impact" guidance |
 | `stop_context.py` | `Stop` | "Include Memory status line" reminder (unconditional) |
 | `precompact_context.py` | `PreCompact` | "Memory docs may be evicted" warning |
@@ -54,8 +54,8 @@ Both platforms follow the same philosophy:
 |---|---|
 | `SessionStart` | Project context + read-before-work reminder |
 | `UserPromptSubmit` | Prompt text + "Is this a dev task?" guidance |
-| `PreToolUse` (ReadFile) | Init Gate check reminder |
-| `PostToolUse` (Write/Replace) | File path + memory impact evaluation |
+| `PreToolUse` (Read) | Init Gate check reminder |
+| `PostToolUse` (Write|Edit) | File path + memory impact evaluation |
 | `Stop` | Memory status line reminder |
 | `PreCompact` | Memory docs eviction warning |
 
@@ -69,7 +69,7 @@ Blocking hooks (`exit 2`) assume we can reliably detect every violation and that
 the agent will correctly respond to the block. In practice:
 
 - LLM output formats are unstable — precise string matching fails
-- Agents use many paths to access files (`ReadFile`, `Shell`+`cat`, `Agent` subcalls)
+- Agents use many paths to access files (`Read`, `Shell`+`cat`, `Agent` subcalls)
 - False positives frustrate users and train them to ignore the system
 - Agents learn to bypass blocks instead of following the protocol
 
@@ -170,7 +170,7 @@ the event from which file is executing.
 | `PreCompact` | `cwd` | `{"cwd": "/path/to/project"}` |
 
 **Important notes:**
-- `PreToolUse` uses `tool_input.path` (the tool being invoked)
+- `PreToolUse` uses `tool_input.file_path` (the tool being invoked)
 - `PostToolUse` uses `tool_input.file_path` (the file that was written)
 - All scripts use `tool_input.get("file_path", tool_input.get("path", ""))` as a defensive fallback
 - Scripts should always `try/except json.load(sys.stdin)` and `sys.exit(0)` on failure
