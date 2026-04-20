@@ -89,7 +89,9 @@ Good example:  "`InitWidget()` must be called before `SetData()` — calling out
 ---
 <!--
 POST-CREATE: After saving this file as a formal unit document:
-  1. Add an entry to `.agents/catalog.yaml` (REQUIRED).
+  1. ~~Add an entry to `.agents/catalog.yaml`~~ — handled by the sync tool (`python .agents/tools/sync-catalog.py`)
+     (Kimi CLI hooks). On non-Kimi platforms, add the entry manually.
   2. If this unit is new to the index, add a navigation link in `.agents/index.md` (REQUIRED).
-  Skipping these steps leaves the index out of sync and breaks agent discovery.
+     This cannot be automated because it involves human-readable grouping decisions.
+  Skipping step 2 leaves the index out of sync and breaks agent discovery.
 -->

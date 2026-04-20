@@ -14,6 +14,67 @@ and mark it stale rather than trusting the document over the code.
 
 ---
 
+## Guidance Layer
+
+This framework does not use blocking enforcement. Instead, it employs a **guidance
+layer** that reminds agents of the protocol at the moments they are most likely to
+forget. The specific mechanisms depend on the agent platform:
+
+### Kimi Code CLI
+
+When the framework's hooks are installed (see `setup/checklist.md` Step 6), the
+following context is injected automatically:
+
+| Moment | Context Injected | Hook Event |
+|---|---|---|
+| New session starts | Project context + "Read memory before working" | `SessionStart` |
+| User submits a prompt | Prompt text + "Is this a dev task?" guidance | `UserPromptSubmit` |
+| Agent reads `.agents/` too early | Init Gate status + setup reminder | `PreToolUse` |
+| Business code is modified | File path + "Evaluate memory impact" guidance | `PostToolUse` |
+| Turn ends after code changes | Modified files list + Memory status line reminder | `Stop` |
+| Context about to compact | "Memory docs may be evicted" warning | `PreCompact` |
+
+These hooks **never block**. Python scripts print to stdout (exit 0) and Kimi adds
+that text to the agent's reasoning context. The agent sees the context and can choose
+to follow it or ignore it.
+
+The hooks are **fail-open**: if a hook script crashes, the agent workflow is not blocked.
+
+### Claude Code
+
+Claude Code supports native `prompt`-type hooks via project-level `.claude/settings.json`.
+No external scripts are needed — Claude evaluates the prompt instructions directly.
+
+The same 6 events are covered, with the same philosophy: present facts and rules,
+let the Agent judge:
+
+| Moment | Context Injected | Hook Event |
+|---|---|---|
+| New session starts | Project context + read-before-work reminder | `SessionStart` |
+| User submits a prompt | Prompt text + dev-task guidance | `UserPromptSubmit` |
+| Agent reads `.agents/` | Init Gate check reminder | `PreToolUse` |
+| Business code is modified | File path + memory impact evaluation | `PostToolUse` |
+| Turn ends | Memory status line reminder | `Stop` |
+| Context about to compact | Memory docs eviction warning | `PreCompact` |
+
+Claude Code hooks are **project-level** (`.claude/settings.json` lives in the repo).
+This means the guidance layer is automatically shared across all team members who
+open this project in Claude Code — no per-machine setup required.
+
+### Other Platforms (Cursor, etc.)
+
+These platforms do not support lifecycle hooks. Guidance falls back to:
+
+1. **System prompt injection** — via `.cursorrules`, the agent receives the
+   full governance rules in every session context.
+2. **Git pre-commit hook** — `validate_agents_health.py` blocks commits that contain
+   stale docs, orphan entries, or placeholder leaks.
+
+On these platforms, compliance relies more heavily on agent discipline. The framework
+still works, but the reminders are static (per-session) rather than dynamic (per-event).
+
+---
+
 ## Pre-Task Protocol (MANDATORY)
 
 **Before starting any non-trivial task, MUST follow these steps in order.**
@@ -21,9 +82,13 @@ Skipping any step is a protocol violation.
 
 **Step 0 — Initialization Gate check:**
 Verify that the framework Initialization Gate in `setup/checklist.md` has been passed.
-All five conditions must be true before using `.agents/` as a context source.
+All six conditions must be true before using `.agents/` as a context source.
 If any condition is unmet, complete `setup/checklist.md` Part 1 first — do not proceed
 with the task until the gate passes.
+
+On **Kimi CLI** and **Claude Code**, Step 0 is also supported by the `PreToolUse` hook:
+if you attempt to read `.agents/` before the gate passes, the hook injects a reminder
+message explaining what still needs to be set up.
 
 **Step 1:** MUST read `.agents/index.md` to identify which modules and units are relevant
 to the task.
@@ -69,25 +134,39 @@ At the end of every completed task, MUST evaluate whether `.agents/` needs updat
    - Task staging, milestones, or completion status
    - Long-term constraints or deferred items
 
-### Catalog and Index Sync (MANDATORY)
+### Catalog and Index Sync
 
-After any create, delete, rename, or archive of a formal document, MUST sync:
+**`catalog.yaml` — TOOL-ASSISTED**
 
-**Sync `catalog.yaml` when:**
-- [ ] A new `demand / module / unit` document is created
-- [ ] A document is deleted or archived
-- [ ] A document is renamed or moved
-- [ ] A module's `related_units` or `related_demands` change
-- [ ] A unit's `owner_module` changes
+Run the sync tool after creating or modifying formal documents:
 
-**Sync `index.md` when:**
-- [ ] A new subsystem is introduced
-- [ ] A new module is added that agents should be able to discover
-- [ ] A module or demand is archived and the link should be removed
-- [ ] The recommended reading path for any subsystem changes
+```bash
+python .agents/tools/sync-catalog.py
+```
 
-Rule of thumb: **formal docs change → sync `catalog.yaml`; discoverability change → sync `index.md`**.
-When in doubt, sync both.
+This script scans all `.md` files under `modules/` / `units/` / `demands/`,
+extracts their frontmatter, and regenerates `catalog.yaml` from scratch.
+It is idempotent — safe to run any time.
+
+You do **not** need to manually edit `catalog.yaml`.
+
+**`index.md` — MANUAL**
+
+`index.md` navigation must still be maintained by hand because it involves
+human-readable grouping decisions that automation cannot reliably make.
+
+Sync `index.md` when:
+- A new subsystem is introduced
+- A new module is added that agents should be able to discover
+- A module or demand is archived and the link should be removed
+- The recommended reading path for any subsystem changes
+
+**Git pre-commit hook (all platforms)**
+
+The `validate_agents_health.py` pre-commit hook will reject commits that contain:
+- Orphan documents (files in `modules/` / `units/` / `demands/` not listed in `catalog.yaml`)
+- Broken cross-references in `catalog.yaml`
+- Stale `updated_at` values (> 30 days)
 
 ### When NOT to Update
 
@@ -161,6 +240,14 @@ No memory update needed
 ```
 
 Omitting this line is a protocol violation.
+
+On **Kimi Code CLI**, the `Stop` hook injects a gentle reminder when business code
+was modified during the turn: "Please include a Memory status line in your final
+response." This is a reminder, not a block — the agent can still choose how to respond.
+
+On other platforms, this remains a convention-based rule. The Git pre-commit hook
+will not catch a missing status line (it is a conversation artifact, not a file),
+so agent discipline is the primary safeguard.
 
 ---
 

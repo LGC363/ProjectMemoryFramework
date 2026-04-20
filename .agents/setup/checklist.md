@@ -54,14 +54,20 @@ N/A — this project has no scripting bridge layer.
 
 **Depends on Step 2** (search scope defines where to look for script files).
 
-### Step 4 — Generate Bridge File (Optional)
+### Step 4 — Configure Claude Code (If Using Claude Code)
 
-If you are working with Claude Code specifically:
-- Copy `setup/CLAUDE.template.md` to the **project root** as `CLAUDE.md`.
-- Fill in the IntelliSense root path (if the project uses a scripting bridge like UnLua).
-- Fill in the Claude Private Memory path for this project.
+Copy `.claude/` from this package to your project root:
 
-Other agents can add equivalent bridge files following the same pattern.
+```bash
+cp -r .claude YourProject/
+```
+
+This provides:
+- `.claude/settings.json` — 6 native `prompt`-type hooks (project-level, commitable)
+- `.claude/CLAUDE.md` — Per-session baseline rules
+
+No per-machine setup required — team members opening this project in Claude Code
+automatically get the guidance layer.
 
 ### Step 5 — Initialize Index and Catalog
 
@@ -73,11 +79,41 @@ Other agents can add equivalent bridge files following the same pattern.
 
 **Depends on Steps 1 and 2** (subsystem names come from project profile and search scope).
 
+### Step 6 — Install Guidance Layer (MANDATORY)
+
+The guidance layer reminds agents of the protocol at the moments they are most
+likely to forget. Skipping this step leaves the framework as vulnerable as any
+purely convention-based system.
+
+**For Kimi Code CLI:**
+```bash
+# Windows (PowerShell)
+.agents\hooks\install-hooks.ps1
+
+# macOS / Linux
+bash .agents/hooks/install-hooks.sh
+```
+
+**For Claude Code:**
+```bash
+cp -r .claude YourProject/
+```
+
+**For all platforms (including Kimi and Claude):**
+```bash
+# Git pre-commit hook — catches stale docs, orphan entries, placeholder leaks
+cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Verify Kimi hooks with `/hooks` in a Kimi CLI shell.
+Verify Claude hooks by checking that `.claude/settings.json` exists in your project root.
+
 ---
 
 ## Initialization Gate
 
-**The framework is NOT active until all five conditions below are true.**
+**The framework is NOT active until all six conditions below are true.**
 Run this check after completing Part 1. Do not proceed to project work until it passes.
 
 | # | Condition | Check |
@@ -86,7 +122,8 @@ Run this check after completing Part 1. Do not proceed to project work until it 
 | 2 | `setup/search_scope.md` exists and contains no `{PLACEHOLDER}` | [ ] |
 | 3 | `setup/scripting_patterns.md` exists **or** is explicitly marked `N/A` | [ ] |
 | 4 | `.agents/index.md` has no `{Subsystem N}` placeholder headings | [ ] |
-| 5 | `.agents/catalog.yaml` has a real date in `updated_at` and a non-empty `areas` list | [ ] |
+| 5 | `.agents/catalog.yaml` has a real date in `updated_at` and non-empty `areas` | [ ] |
+| 6 | **Guidance layer is installed** — Kimi hooks / Claude `.claude/` / Cursor `.cursorrules` + Git pre-commit | [ ] |
 
 If any condition is unmet, return to the corresponding step above and complete it.
 
@@ -120,8 +157,9 @@ When in doubt, err toward creating a demand document. It costs little and provid
 2. Fill in: background, goals, out-of-scope items, requirement source (link to ticket/doc),
    affected modules
 3. For large features: fill in the initial design architecture section
-4. Add an entry to `catalog.yaml` (REQUIRED)
-5. Add a navigation entry to `index.md` under the relevant subsystem (REQUIRED)
+4. ~~Add an entry to `catalog.yaml`~~ — **handled by the sync tool** (`python .agents/tools/sync-catalog.py`)
+5. Add a navigation entry to `index.md` under the relevant subsystem (REQUIRED — index.md
+   navigation cannot be fully automated because it involves human-readable grouping decisions)
 
 ### Step 4 — Work
 
@@ -141,4 +179,5 @@ documents based on what was learned and changed.
 - **Selective unit creation.** Do not create unit documents for every file — only for
   high-value entry points and high-risk implementations.
 - **Demand documents are living records.** Append to the evolution log; do not rewrite history.
-- **Always sync catalog.yaml and index.md** when creating, renaming, or archiving any formal doc.
+- **Catalog sync is tool-assisted.** Run `python .agents/tools/sync-catalog.py` after creating
+  or modifying formal docs. You only need to sync `index.md` when navigation structure changes.

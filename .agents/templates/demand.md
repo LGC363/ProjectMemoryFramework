@@ -115,7 +115,9 @@ Format:
 ---
 <!--
 POST-CREATE: After saving this file as a formal demand document:
-  1. Add an entry to `.agents/catalog.yaml` (REQUIRED).
+  1. ~~Add an entry to `.agents/catalog.yaml`~~ — handled by the sync tool (`python .agents/tools/sync-catalog.py`)
+     (Kimi CLI hooks). On non-Kimi platforms, add the entry manually.
   2. Add a navigation entry to `.agents/index.md` under Formal Demands (REQUIRED).
-  Skipping these steps leaves the index out of sync and breaks agent discovery.
+     This cannot be automated because it involves human-readable grouping decisions.
+  Skipping step 2 leaves the index out of sync and breaks agent discovery.
 -->

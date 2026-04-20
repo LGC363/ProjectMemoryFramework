@@ -8,13 +8,14 @@ Memory Framework. Read this first if you are new to this project or this framewo
 ## Step 0 — Is the Framework Initialized?
 
 Before reading any `.agents/` memory, check the Initialization Gate.
-All five must be true:
+All six must be true:
 
 1. `setup/project_profile.md` exists and has no `{PLACEHOLDER}` values
 2. `setup/search_scope.md` exists and has no `{PLACEHOLDER}` values
 3. `setup/scripting_patterns.md` exists or is explicitly marked `N/A`
 4. `index.md` has no `{Subsystem N}` placeholder headings
 5. `catalog.yaml` has a real date and a non-empty `areas` list
+6. **The guidance layer is installed** (hooks for Kimi CLI, or bridge + Git pre-commit for other platforms)
 
 **If any condition is unmet:** complete `setup/checklist.md` Part 1 before starting work.
 Do not use `.agents/` memory until the gate passes.
@@ -61,8 +62,8 @@ No memory update needed
 ```
 
 When you create, rename, or archive any formal doc:
-- Sync `catalog.yaml` (always)
-- Sync `index.md` (if navigation changed)
+- ~~Sync `catalog.yaml`~~ — **handled by the sync tool** (`python .agents/tools/sync-catalog.py`). On other platforms, sync manually.
+- Sync `index.md` (if navigation changed) — **manual**, automation cannot reliably decide human-readable grouping
 
 This list must stay aligned with `rules/memory_governance.md`.
 Full rules: `rules/memory_governance.md` Post-Task Protocol.

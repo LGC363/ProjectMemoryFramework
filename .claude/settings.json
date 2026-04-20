@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "SessionStart": [{
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "当前会话在 {{cwd}} 启动。请检查 .agents/catalog.yaml 是否存在。若存在，说明本项目已启用 ProjectMemoryFramework 业务记忆层。请根据 PMF 规则自行判断：如果是新工作任务，请在动手前读取 AGENTS.md → .agents/index.md → 相关 modules/ → 相关 units/。"
+      }]
+    }],
+    "UserPromptSubmit": [{
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "用户提交需求：\"{{prompt}}\"。请根据 PMF 规则自行判断：1) 这是否是开发/修改/实现/重构/添加/修复类任务？2) 如果是，请先读取 .agents/index.md 定位相关子系统，再读取对应的 modules/ 和 units/ 文档，了解系统边界后再动手。3) 如果是查询/解释/总结类任务，可以直接回答。"
+      }]
+    }],
+    "PreToolUse": [{
+      "matcher": "ReadFile",
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "你正在读取文件 {{tool_input.path}}。若路径在 .agents/ 目录下，请确认本项目 Initialization Gate 已完成（setup/checklist.md Part 1 已全部通过）。如果尚未完成，请先完成初始化再读取业务记忆文档。"
+      }]
+    }],
+    "PostToolUse": [{
+      "matcher": "WriteFile|StrReplaceFile",
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "你修改了文件 {{tool_input.file_path}}。请根据 PMF 规则自行判断：1) 这是否是业务源代码（非 .agents/ 文档）？2) 本次修改是否产生了值得记录的新知识（模块职责变化、关键入口/风险点变化、架构决策变化等）？3) 如果是，请在完成任务后更新 modules/ / units/ / demands/ 文档，并运行 python .agents/tools/sync-catalog.py。"
+      }]
+    }],
+    "Stop": [{
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "轮次即将结束。请回顾本轮是否修改了业务代码。若修改了，请评估是否产生了值得记录的新知识。请在最终回复末尾追加且仅追加一行 Memory status line（例如：Memory updated: module + unit，或 No memory update needed）。"
+      }]
+    }],
+    "PreCompact": [{
+      "hooks": [{
+        "type": "prompt",
+        "prompt": "上下文即将被压缩。若本轮读取了 .agents/ 下的业务记忆文档，这些文档可能从上下文中丢失。若后续工作仍需要参考，请在压缩完成后重新读取（顺序：index.md → modules → units → demands）。"
+      }]
+    }]
+  }
+}

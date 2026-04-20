@@ -17,7 +17,7 @@ from scratch each time.
 ├── rules/            Governance rules. Most are ready-to-use; some contain required
 │   └──               project-specific fill-in sections noted in setup/checklist.md
 │   ├── ue_repo_conventions.md    UE scanning rules, file reading strategy
-│   ├── memory_governance.md      Pre/post task protocols, update rules
+│   ├── memory_governance.md      Pre/post task protocols, update rules, guidance
 │   └── code_style_baseline.md    Readability, encoding safety, no-modify rules
 │
 ├── setup/            Project-specific configuration (fill in when installing)
@@ -25,12 +25,23 @@ from scratch each time.
 │   ├── project_profile.md        Project name, version, role, technology stack
 │   ├── search_scope.md           Tier 1/2 directory search scope
 │   ├── scripting_patterns.md     Scripting bridge integration patterns
-│   └── CLAUDE.template.md        Bridge template for Claude Code
+│   ├── CLAUDE.template.md        Bridge template for Claude Code
+│   └── CURSOR.template.md        Bridge template for Cursor
 │
 ├── templates/        Document templates with inline examples
 │   ├── module.md     Template for module behavior documents
 │   ├── unit.md       Template for implementation unit documents
 │   └── demand.md     Template for feature flow records
+│
+├── hooks/            Guidance layer scripts (core — not optional)
+│   ├── init_gate_check.py        PreToolUse: reminds if reading .agents/ too early
+│   ├── auto_sync_catalog.py      PostToolUse: auto-syncs catalog.yaml
+│   ├── business_code_marker.py   PostToolUse: marks business code changes
+│   ├── turn_end_reminder.py      Stop: reminds about Memory status line
+│   ├── validate_agents_health.py Git pre-commit: repository-wide health check
+│   ├── install-hooks.ps1         Windows hook installer
+│   ├── install-hooks.sh          macOS/Linux hook installer
+│   └── README.md                 Guidance layer architecture guide
 │
 ├── modules/          Current module behavior, debug entry points, boundaries
 ├── units/            Selected high-value implementation units
@@ -59,6 +70,21 @@ is mandatory and takes precedence over the default "ready-to-use" expectation.
 
 ---
 
+## Guidance Layer
+
+This framework relies on **contextual guidance** for reliability. See `hooks/README.md`
+for the full architecture. Quick summary:
+
+| Mechanism | Platform | What it does |
+|---|---|---|
+| `PreToolUse` hook | Kimi CLI | Init Gate must pass before reading `.agents/` |
+| `PostToolUse` hooks | Kimi CLI | `catalog.yaml` auto-sync when docs change |
+| `Stop` hook | Kimi CLI | Memory status line after business code changes |
+| Git pre-commit hook | All | Stale docs, orphan entries, placeholder leaks |
+| System prompt bridge | Claude / Cursor | Rule injection when native hooks unavailable |
+
+---
+
 ## Governance Summary
 
 See `rules/memory_governance.md` for the full protocol. Quick reference:
@@ -69,8 +95,10 @@ See `rules/memory_governance.md` for the full protocol. Quick reference:
 - Module responsibilities, flows, or debug entry points → update `modules/`
 - Key entry points, risk points, or bridge points → update `units/`
 - Feature intent, architecture decisions, or history → update `demands/`
-- Any formal doc created/deleted/renamed → sync `catalog.yaml`
-- Any discoverability change → sync `index.md`
+- Navigation structure changed → sync `index.md`
+
+**Catalog sync**: Tool-assisted via `python .agents/tools/sync-catalog.py`. On other platforms,
+manually update `catalog.yaml` when creating formal documents.
 
 **Final response**: Always end with one of:
 `Memory updated: module + unit` / `Memory updated: demand` / `No memory update needed`

@@ -23,7 +23,7 @@ YourProject/
 
 Copy the `.agents/` directory from this package into your project root:
 
-```
+```bash
 cp -r ProjectMemoryFramework/.agents/ YourProject/.agents/
 ```
 
@@ -33,7 +33,7 @@ cp -r ProjectMemoryFramework/.agents/ YourProject/.agents/
 
 Copy `AGENTS.md` from this package to your project root:
 
-```
+```bash
 cp ProjectMemoryFramework/AGENTS.md YourProject/AGENTS.md
 ```
 
@@ -44,7 +44,7 @@ Add any project-specific rules in the marked area at the top of the file, above 
 Append the framework section to your existing file. The framework section starts at the
 `# Agent Business Memory Layer` heading (below the first `---` separator in `AGENTS.md`).
 
-```
+```bash
 # Preview what will be appended:
 grep -n "Agent Business Memory Layer" ProjectMemoryFramework/AGENTS.md
 
@@ -66,7 +66,7 @@ After copying, the setup templates still contain `{PLACEHOLDER}` values.
 Tell your agent:
 
 > "Please complete the framework initialization per `.agents/setup/checklist.md` Part 1.
-> Run the Initialization Gate check at the end and confirm all five conditions pass."
+> Run the Initialization Gate check at the end and confirm all six conditions pass."
 
 The agent will:
 
@@ -86,25 +86,73 @@ The agent will:
 
 5. **[Auto]** Set real `updated_at` date and `areas` list in `catalog.yaml`
 
+6. **[Auto]** Install the guidance layer — see Step 4 below.
+
 After Smart Setup, run the **Initialization Gate** check (see `setup/checklist.md`).
-The framework is not active until all five gate conditions pass.
+The framework is not active until all six gate conditions pass.
 
-### Step 4 — Generate Claude Bridge (Optional)
+### Step 4 — Install Guidance Layer (MANDATORY)
 
-If you are using Claude Code, generate `CLAUDE.md` at the project root:
+The framework's effectiveness depends on a **guidance layer** that injects context
+at the moments agents are most likely to forget the protocol. This step is not optional.
 
+Choose your primary agent platform:
+
+**Kimi Code CLI:**
+
+Run the installer from your project root:
+
+```bash
+# Windows (PowerShell)
+.agents\hooks\install-hooks.ps1
+
+# macOS / Linux
+bash .agents/hooks/install-hooks.sh
 ```
-cp ProjectMemoryFramework/.agents/setup/CLAUDE.template.md YourProject/CLAUDE.md
+
+This registers 6 **context-injection hooks** in `~/.kimi/config.toml`. These hooks
+never block anything. They inject facts and rules into the agent's context:
+- **Session start** — Project context + read-before-work reminder
+- **User prompt** — Prompt text + "Is this a dev task?" guidance
+- **PreToolUse (ReadFile)** — Warning if reading `.agents/` before initialization
+- **PostToolUse (Write/Replace)** — Reminder to evaluate memory impact
+- **Turn end** — Prompt to include Memory status line
+- **Context compacting** — Warning that memory docs may be evicted
+
+Verify with `/hooks` inside a Kimi CLI shell. You should see 6 configured hooks.
+
+**Claude Code:**
+
+Copy `.claude/` to your project root:
+
+```bash
+cp -r ProjectMemoryFramework/.claude YourProject/
 ```
 
-Fill in the IntelliSense root path and Claude Private Memory path.
+This provides:
+- **`.claude/settings.json`** — 6 native `prompt`-type hooks that mirror the Kimi
+  hook events. Claude evaluates these prompts directly (no external scripts).
+  Supports template variables: `{{cwd}}`, `{{prompt}}`, `{{tool_input.path}}`, etc.
+- **`.claude/CLAUDE.md`** — Per-session baseline rules. Claude reads this at session
+  start and uses it as grounding throughout the conversation.
 
-### Step 5 — Clean Up
+> Claude Code hooks are project-level and commitable. Every team member opening this
+> project in Claude Code automatically gets the guidance layer — no per-machine setup required.
+
+### Step 5 — Generate Bridge File for Other Platforms (Optional)
+
+**Cursor:**
+Copy `setup/CURSOR.template.md` to the project root as `.cursorrules` and fill it in.
+
+This injects static rules into Cursor's system prompt, providing the best available
+guidance when native lifecycle hooks are not supported.
+
+### Step 6 — Clean Up
 
 Delete the `ProjectMemoryFramework/` installation package from your project root.
 It is a temporary installer, not part of the project.
 
-```
+```bash
 rm -rf ProjectMemoryFramework/
 ```
 
@@ -114,17 +162,51 @@ rm -rf ProjectMemoryFramework/
 
 ```
 YourProject/
-├── AGENTS.md             Project rules + appended framework hook
+├── AGENTS.md             Project rules + framework hook
 ├── .agents/              Framework — all business memory lives here
-│   ├── rules/            Ready-to-use UE conventions and governance rules
-│   ├── setup/            Project-specific configuration (auto-filled by Smart Setup)
-│   ├── templates/        Document templates for module/unit/demand creation
-│   ├── modules/          Empty — accumulates as work progresses
-│   ├── units/            Empty — accumulates as work progresses
-│   └── demands/          Empty — accumulates as work progresses
+│   ├── rules/            UE conventions, governance, coding baseline
+│   ├── setup/            Project-specific configuration (auto-filled)
+│   ├── templates/        Document templates for module/unit/demand
+│   ├── hooks/            Guidance scripts (auto-installed in Step 4)
+│   ├── modules/          System behavior docs — accumulates with work
+│   ├── units/            Implementation unit docs — accumulates with work
+│   ├── demands/          Feature flow records — accumulates with work
+│   ├── exports/          Focused handoff packages
+│   └── legacy/           Historical notes after migration
 ├── Source/               Your existing code
 └── Content/              Your existing content
 ```
+
+---
+
+## Cross-Platform Guidance
+
+The framework uses a **tiered guidance strategy** to maximize coverage across platforms:
+
+| Platform | Guidance Mechanism | Coverage |
+|---|---|---|
+| **Kimi Code CLI** | Native `command` hooks (6 events) | Context injection at session/task/code/turn/compact moments |
+| **Claude Code** | Native `prompt` hooks (6 events) + `CLAUDE.md` | Context injection at same moments + per-session baseline rules |
+| **Cursor** | `.cursorrules` system prompt + Git pre-commit | Static rules per session + commit-time health check |
+| **Git (all platforms)** | Pre-commit hook (`validate_agents_health.py`) | Stale docs, orphan entries, placeholder leak |
+
+> **Philosophy**: All hooks are *context-injection only* — they present facts and rules,
+> but the Agent makes all judgments. There is no mechanical blocking. The only true
+> mechanical enforcement is the Git pre-commit hook.
+
+**Git pre-commit hook (recommended for all teams):**
+
+```bash
+# From your project root
+cp .agents/hooks/validate_agents_health.py .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+This is the **only mechanical check** in the framework. It catches issues
+that guidance cannot prevent:
+- `{PLACEHOLDER}` values leaked into committed setup files
+- Orphan documents in `modules/` / `units/` / `demands/` not listed in `catalog.yaml`
+- Broken cross-references and stale paths
 
 ---
 
@@ -135,7 +217,8 @@ To update to a newer version:
 1. Download the new package.
 2. Compare `rules/` files — merge any new rules into your existing `rules/` files.
 3. Check `templates/` for updated templates — optionally update your copies.
-4. Do **not** overwrite `setup/`, `modules/`, `units/`, or `demands/` — these contain
+4. Compare `hooks/` — install updated hook scripts and re-run the hook installer.
+5. Do **not** overwrite `setup/`, `modules/`, `units/`, or `demands/` — these contain
    your project's accumulated knowledge.
 
 ---
@@ -145,7 +228,11 @@ To update to a newer version:
 1. Delete `.agents/` from your project root.
 2. Remove the appended framework section from `AGENTS.md` (from `# Agent Business Memory Layer`
    to end of file, or from the `---` separator that precedes it).
-3. Remove `CLAUDE.md` if it was generated by the framework.
+3. Remove `CLAUDE.md` / `.cursorrules` if generated by the framework.
+4. Remove PMF hooks from `~/.kimi/config.toml` (delete the block between
+   `# === ProjectMemoryFramework Hooks` and `# === End PMF Hooks`).
+5. Remove `.claude/` from your project root (if using Claude Code).
+6. Remove the Git pre-commit hook if installed.
 
 ---
 
@@ -154,6 +241,3 @@ To update to a newer version:
 **log.md** — Append-only activity log for time-ordered traceability.
 Format: `## [YYYY-MM-DD] type | title`
 Create `.agents/log.md` and note it in `rules/memory_governance.md`.
-
-**Lint health check** — Periodic check for stale paths, orphan documents, and missing
-cross-references. Ask your agent to perform a health check pass on `.agents/` when needed.

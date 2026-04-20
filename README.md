@@ -1,13 +1,16 @@
 ﻿# ProjectMemoryFramework
 
-`ProjectMemoryFramework` is a lightweight, repo-local business memory framework for agent-assisted development.
+`ProjectMemoryFramework` is a **reliable, repo-local business memory framework** for agent-assisted development in large Unreal Engine projects.
 
-It gives Unreal Engine projects a consistent way to:
+Unlike convention-only approaches that rely solely on agent discipline, this framework
+combines **structured documentation** with **contextual guidance** and **automation tools**
+to help agents follow the protocol without adding cognitive burden:
 
 - accumulate project knowledge across sessions
 - keep agent-readable memory close to the codebase
 - standardize module / unit / demand documentation
-- enforce a predictable read-before-work and update-after-work protocol
+- **contextually guide** agents to read-before-work and update-after-work
+- **automate** mechanical tasks (catalog sync, health checks)
 
 The framework is intentionally simple:
 
@@ -52,6 +55,7 @@ ProjectMemoryFramework/
     ├── rules/
     ├── setup/
     ├── templates/
+    ├── hooks/              ← Guidance layer (core — not optional)
     ├── modules/
     ├── units/
     ├── demands/
@@ -88,7 +92,7 @@ Every completed task ends with a memory evaluation:
 - did module behavior change?
 - did a key implementation entry point change?
 - did the feature history or architecture record change?
-- do `catalog.yaml` and `index.md` need syncing?
+- does `index.md` need syncing? (`catalog.yaml` is synced via `python .agents/tools/sync-catalog.py`)
 
 ## Quick Start
 
@@ -139,7 +143,7 @@ Recommended prompt:
 ```text
 Please initialize ProjectMemoryFramework for this repository.
 Follow `.agents/setup/checklist.md` Part 1 exactly.
-Fill all required setup files, replace placeholder values, and run the Initialization Gate check.
+Fill all required setup files, replace placeholder values, install the guidance layer, and run the Initialization Gate check.
 Do not start normal development work until all gate conditions pass.
 ```
 
@@ -154,20 +158,22 @@ You must:
 - create or fill `scripting_patterns.md` or mark it N/A
 - replace placeholder subsystem headings in `index.md`
 - initialize `catalog.yaml` with a real date and non-empty areas
+- install the guidance layer (hooks for Kimi CLI, `.claude/` for Claude Code, `.cursorrules` for Cursor, Git pre-commit for all)
 - confirm the Initialization Gate passes before doing any other task
 ```
 
 ### Step 4. Review the initialization result
 
-Before letting the agent use the framework for real work, verify that these files now exist in the target project:
+Before letting the agent use the framework for real work, verify that these are complete in the target project:
 
-- `.agents/setup/project_profile.md`
-- `.agents/setup/search_scope.md`
+- `.agents/setup/project_profile.md` (no placeholders)
+- `.agents/setup/search_scope.md` (no placeholders)
 - `.agents/setup/scripting_patterns.md` or an explicit `N/A` file
 - `.agents/index.md` with real subsystem names
 - `.agents/catalog.yaml` with a real `updated_at` value and non-empty `areas`
+- **Guidance layer installed** (run install script for Kimi CLI; copy `.claude/` for Claude Code; copy `.cursorrules` for Cursor; install Git pre-commit hook)
 
-If these are not complete, the framework is not active yet.
+If any of these are incomplete, the framework is not active yet.
 
 ### Step 5. Start normal usage
 
@@ -177,7 +183,7 @@ Once initialization is complete, the agent should:
 2. read `.agents/index.md`
 3. read relevant `modules/`, `units/`, and `demands/`
 4. do the task
-5. end with a memory update decision
+5. end with a memory update decision (you will be reminded on Kimi CLI)
 
 ## Installation
 
@@ -205,16 +211,19 @@ The framework is only active when all of the following are true:
 3. `setup/scripting_patterns.md` exists, or is explicitly marked `N/A`
 4. `.agents/index.md` no longer contains placeholder subsystem headings
 5. `.agents/catalog.yaml` has a real date and a non-empty `areas` list
+6. **The guidance layer is installed** (Kimi CLI hooks via install script, Claude Code `.claude/` config, or Cursor `.cursorrules` + Git pre-commit)
 
 If any of these fail, stop and finish setup before using the framework.
+
+On **Kimi Code CLI** and **Claude Code**, the `PreToolUse` hook will remind you if you try to read `.agents/` before initialization is complete.
 
 ### During implementation
 
 1. Read the relevant memory documents
 2. Work in the codebase
 3. Update `modules/`, `units/`, or `demands/` if new stable knowledge was created
-4. Sync `catalog.yaml` and `index.md` when formal docs change
-5. End the final response with a memory status line
+4. Sync `index.md` when navigation structure changes (`catalog.yaml` is synced via `python .agents/tools/sync-catalog.py`)
+5. End the final response with a memory status line (hooks will remind you on Kimi CLI and Claude Code)
 
 ## Document Types
 
@@ -301,10 +310,23 @@ Use `.agents/setup/checklist.md` Part 2.
 If the task is medium or large, create a demand document first, then continue.
 ```
 
+## Guidance and Automation
+
+The framework uses a **tiered strategy** to help agents remember the protocol:
+
+| Platform | Mechanism | What it does |
+|---|---|---|
+| **Kimi Code CLI** | Native `command` hooks (6 events) | Injects context at session/task/code/turn/compact moments |
+| **Claude Code** | Native `prompt` hooks (6 events) + `CLAUDE.md` | Injects context at same moments + per-session baseline rules |
+| **Cursor** | `.cursorrules` system prompt | Injects static rules into every session |
+| **Git (all)** | `validate_agents_health.py` pre-commit hook | Rejects commits with stale docs, orphan entries, placeholder leaks |
+
+See `.agents/hooks/README.md` for the full guidance architecture.
+
 ## Notes
 
 - The setup and rules are written to be usable by multiple agents, not tied to a single tool
-- Claude bridge generation is included as an optional setup step
+- Claude bridge generation is included as a standard setup step
 - If you adapt this for non-UE repositories, review `.agents/rules/ue_repo_conventions.md` first
 
 ## License
